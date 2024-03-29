@@ -11,6 +11,7 @@ class Report_result:
     self.result_data = data
     self.subset:pd.DataFrame = data['subset']
     self.generated_subsets:dict = {}
+    self.pca_results:dict = {}
 
   def plot_histograms(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
@@ -74,6 +75,17 @@ class Report_result:
 
   def principal_components_analysis(self, use_named_set = False, set_name = ''):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    pca_id = f'{set_name}-pca' if(use_named_set) else 'full-subset-pca'
+
     pca_result, pca_instance = principal_components_analysis(subset)
-    self.pca_result = pca_result
-    self.pca_instance = pca_instance
+
+    representative_columns = get_representative_vars_by_pca(subset, pca_instance)
+
+    self.pca_results[pca_id] = {
+      'results': pca_result,
+      'instance': pca_instance,
+      'representative_columns': representative_columns,
+    }
+
+    print(f'Variables that most accurately account for the variation: {representative_columns}')
+    print(len(representative_columns))
