@@ -16,33 +16,33 @@ class Report_result:
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
-        plt.figure(figsize=(8, 6))
-        plt.hist(subset[col], bins=30, color='blue', alpha=0.7)
-        plt.title(f'Histogram of {col}')
-        plt.xlabel(col)
-        plt.ylabel('Frequency')
-        plt.grid(True)
-        plt.show()
+      plt.figure(figsize=(8, 6))
+      plt.hist(subset[col], bins=30, color='blue', alpha=0.7)
+      plt.title(f'Histogram of {col}')
+      plt.xlabel(col)
+      plt.ylabel('Frequency')
+      plt.grid(True)
+      plt.show()
 
   def check_balance(self, target = 'credit_risk'):
-      counts = np.bincount(self.subset[target])
+    counts = np.bincount(self.subset[target])
 
-      ones_count = counts[1]
-      zeros_count = counts[0]
+    ones_count = counts[1]
+    zeros_count = counts[0]
 
-      return ones_count == zeros_count
+    return ones_count == zeros_count
 
   def plot_boxplots(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
-        plt.figure(figsize=(8, 6))
-        subset.boxplot(column=col)
-        plt.title(f'Histogram of {col}')
-        plt.xlabel(col)
-        plt.ylabel('Frequency')
-        plt.grid(True)
-        plt.show()
+      plt.figure(figsize=(8, 6))
+      subset.boxplot(column=col)
+      plt.title(f'Histogram of {col}')
+      plt.xlabel(col)
+      plt.ylabel('Frequency')
+      plt.grid(True)
+      plt.show()
 
   def count_outliers(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
@@ -50,24 +50,30 @@ class Report_result:
     inlier_counts = {}
 
     for col in columns:
-        Q1 = subset[col].quantile(0.25)
-        Q3 = subset[col].quantile(0.75)
-        IQR = Q3 - Q1
+      Q1 = subset[col].quantile(0.25)
+      Q3 = subset[col].quantile(0.75)
+      IQR = Q3 - Q1
 
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
+      lower_bound = Q1 - 1.5 * IQR
+      upper_bound = Q3 + 1.5 * IQR
 
-        outliers = self.subset[(subset[col] < lower_bound) | (subset[col] > upper_bound)]
+      outliers = self.subset[(subset[col] < lower_bound) | (subset[col] > upper_bound)]
 
-        outlier_counts[col] = len(outliers)
-        inlier_counts[col] = len(subset[col]) - outlier_counts[col]
+      outlier_counts[col] = len(outliers)
+      inlier_counts[col] = len(subset[col]) - outlier_counts[col]
 
     return outlier_counts, inlier_counts
 
   def remove_outliers(self, columns = ['duration', 'amount', 'age'], outliers_id = 'outliers', inliers_id = 'inliers', use_named_set = False, set_name = ''):
-     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
-     no_outliers, outliers = remove_outliers(subset, columns)
+    no_outliers, outliers = remove_outliers(subset, columns)
 
-     self.generated_subsets[outliers_id] = outliers
-     self.generated_subsets[inliers_id] = no_outliers
+    self.generated_subsets[outliers_id] = outliers
+    self.generated_subsets[inliers_id] = no_outliers
+
+  def principal_components_analysis(self, use_named_set = False, set_name = ''):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    pca_result, pca_instance = principal_components_analysis(subset)
+    self.pca_result = pca_result
+    self.pca_instance = pca_instance
