@@ -277,3 +277,23 @@ def evaluate_performance_of_decision_tree(clf:DecisionTreeClassifier, X_test, y_
     plt.xlabel('Predicciones')
     plt.ylabel('Valores Verdaderos')
     plt.show()
+
+def get_subsets(df, columns):
+
+    combinations = df[columns].drop_duplicates().to_dict(orient='records')
+
+    subsets = []
+
+    for combination in combinations:
+        filter_condition = None
+
+        for column, value in combination.items():
+            if filter_condition is None:
+                filter_condition = (df[column] == value)
+            else:
+                filter_condition = filter_condition & (df[column] == value)
+
+        subset = df[filter_condition]
+        subsets.append(subset)
+
+    return subsets
