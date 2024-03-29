@@ -10,12 +10,14 @@ class Report_result:
   def __init__(self, data: dict) -> None:
     self.result_data = data
     self.subset:pd.DataFrame = data['subset']
+    self.generated_subsets:dict = {}
 
-  def plot_histograms(self, columns = ['duration', 'amount', 'age']):
+  def plot_histograms(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
         plt.figure(figsize=(8, 6))
-        plt.hist(self.subset[col], bins=30, color='blue', alpha=0.7)
+        plt.hist(subset[col], bins=30, color='blue', alpha=0.7)
         plt.title(f'Histogram of {col}')
         plt.xlabel(col)
         plt.ylabel('Frequency')
@@ -30,32 +32,42 @@ class Report_result:
 
       return ones_count == zeros_count
 
-  def plot_boxplots(self, columns = ['duration', 'amount', 'age']):
+  def plot_boxplots(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
         plt.figure(figsize=(8, 6))
-        self.subset.boxplot(column=col)
+        subset.boxplot(column=col)
         plt.title(f'Histogram of {col}')
         plt.xlabel(col)
         plt.ylabel('Frequency')
         plt.grid(True)
         plt.show()
 
-  def count_outliers(self, columns = ['duration', 'amount', 'age']):
+  def count_outliers(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
     outlier_counts = {}
     inlier_counts = {}
 
     for col in columns:
-        Q1 = self.subset[col].quantile(0.25)
-        Q3 = self.subset[col].quantile(0.75)
+        Q1 = subset[col].quantile(0.25)
+        Q3 = subset[col].quantile(0.75)
         IQR = Q3 - Q1
 
         lower_bound = Q1 - 1.5 * IQR
         upper_bound = Q3 + 1.5 * IQR
 
-        outliers = self.subset[(self.subset[col] < lower_bound) | (self.subset[col] > upper_bound)]
+        outliers = self.subset[(subset[col] < lower_bound) | (subset[col] > upper_bound)]
 
         outlier_counts[col] = len(outliers)
-        inlier_counts[col] = len(self.subset[col]) - outlier_counts[col]
+        inlier_counts[col] = len(subset[col]) - outlier_counts[col]
 
     return outlier_counts, inlier_counts
+
+  def remove_outliers(self, columns = ['duration', 'amount', 'age'], outliers_id = 'outliers', inliers_id = 'inliers', use_named_set = False, set_name = ''):
+     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+
+     no_outliers, outliers = remove_outliers(subset, columns)
+
+     self.generated_subsets[outliers_id] = outliers
+     self.generated_subsets[inliers_id] = no_outliers
