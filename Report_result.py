@@ -89,3 +89,8 @@ class Report_result:
 
     print(f'Variables that most accurately account for the variation: {representative_columns}')
     print(len(representative_columns))
+
+  def plot_variance_from_pca(self, use_named_set = False, set_name = ''):
+    pca_id = f'{set_name}-pca' if(use_named_set) else 'full-subset-pca'
+
+    plot_cummulated_variance_from_pca(self.pca_results[pca_id]['instance'].explained_variance_ratio_)
