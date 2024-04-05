@@ -12,6 +12,7 @@ class Report_result:
     self.subset:pd.DataFrame = data['subset']
     self.generated_subsets:dict = {}
     self.pca_results:dict = {}
+    self.cart_results:dict = {}
 
   def plot_histograms(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = '', figsize=(8, 6)):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
@@ -99,3 +100,26 @@ class Report_result:
     pca_id = f'{set_name}-pca' if(use_named_set) else 'full-subset-pca'
 
     plot_cummulated_variance_from_pca(self.pca_results[pca_id]['instance'].explained_variance_ratio_)
+
+  def implement_decision_tree(self, use_named_set = False, set_name = '', colnames=[], figsize=(8, 16), fontsize=1, top=0.9, bottom=0.1, left=0.1, right=0.9, hspace=0.5, wspace=0.5):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    cart_id = f'{set_name}-cart' if(use_named_set) else 'full-subset-cart'
+
+    x_train, x_test, y_train, y_test = split_data_into_test_and_train(subset, colnames, 'credit_risk')
+
+    clf = implement_decision_tree(x_train, y_train, figsize, fontsize=fontsize, left=left, right=right, top=top, bottom=bottom, hspace=hspace, wspace=wspace)
+
+    self.cart_results[cart_id] = {
+      'clf': clf,
+      'x_test': x_test,
+      'y_test': y_test,
+    }
+
+  def evaluate_performance_of_decision_tree(self, use_named_set = False, set_name = ''):
+    cart_id = f'{set_name}-cart' if(use_named_set) else 'full-subset-cart'
+
+    x_test = self.cart_results[cart_id]['x_test']
+    y_test = self.cart_results[cart_id]['y_test']
+    clf = self.cart_results[cart_id]['clf']
+
+    evaluate_performance_of_decision_tree(clf, x_test, y_test)
