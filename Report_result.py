@@ -13,11 +13,11 @@ class Report_result:
     self.generated_subsets:dict = {}
     self.pca_results:dict = {}
 
-  def plot_histograms(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
+  def plot_histograms(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = '', figsize=(8, 6)):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
-      plt.figure(figsize=(8, 6))
+      plt.figure(figsize=figsize)
       plt.hist(subset[col], bins=30, color='blue', alpha=0.7)
       plt.title(f'Histogram of {col}')
       plt.xlabel(col)
@@ -33,11 +33,11 @@ class Report_result:
 
     return ones_count == zeros_count
 
-  def plot_boxplots(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = ''):
+  def plot_boxplots(self, columns = ['duration', 'amount', 'age'], use_named_set = False, set_name = '', figsize=(8, 6)):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
 
     for col in columns:
-      plt.figure(figsize=(8, 6))
+      plt.figure(figsize=figsize)
       subset.boxplot(column=col)
       plt.title(f'Histogram of {col}')
       plt.xlabel(col)
