@@ -58,7 +58,7 @@ class Report_result:
       lower_bound = Q1 - 1.5 * IQR
       upper_bound = Q3 + 1.5 * IQR
 
-      outliers = self.subset[(subset[col] < lower_bound) | (subset[col] > upper_bound)]
+      outliers = subset[(subset[col] < lower_bound) | (subset[col] > upper_bound)]
 
       outlier_counts[col] = len(outliers)
       inlier_counts[col] = len(subset[col]) - outlier_counts[col]
@@ -73,8 +73,13 @@ class Report_result:
     self.generated_subsets[outliers_id] = outliers
     self.generated_subsets[inliers_id] = no_outliers
 
-  def principal_components_analysis(self, use_named_set = False, set_name = ''):
+  def balance_subset(self, use_named_set = False, set_name = '', subsampling_features=[], subsampling_size:int=1, balanced_set_name='balanced_sample',  skip_subsampling:bool=False, skip_oversampling:bool=False):
     subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    self.generated_subsets[balanced_set_name] = create_balanced_sample(subset, subsampling_features, subsampling_size, skip_subsampling, skip_oversampling)
+
+  def principal_components_analysis(self, use_named_set = False, set_name = '', target='credit_risk'):
+    subset = self.generated_subsets[set_name] if(use_named_set) else self.subset
+    subset = subset.drop(target, axis=1)
     pca_id = f'{set_name}-pca' if(use_named_set) else 'full-subset-pca'
 
     pca_result, pca_instance = principal_components_analysis(subset)
