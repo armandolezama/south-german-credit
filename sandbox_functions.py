@@ -166,10 +166,10 @@ def smote_oversampling(X_vars, y_var):
 def merge_two_subsets(subset_1: pd.DataFrame, subset_2: pd.DataFrame):
   return pd.concat([subset_1, subset_2], ignore_index=True)
 
-def create_balanced_sample(full_data: pd.DataFrame, subsampling_features:list, subsampling_size:int):
-  subsample = stratified_subsampling(full_data.loc[full_data.credit_risk.isin([1])], subsampling_features, subsampling_size)
-  subsample = merge_two_subsets(subsample, full_data.loc[full_data.credit_risk.isin([0])])
-  subsample = smote_oversampling(X_vars=subsample.drop("credit_risk", axis=1), y_var=subsample.credit_risk)
+def create_balanced_sample(full_data: pd.DataFrame, subsampling_features:list, subsampling_size:int=1, skip_subsampling:bool=False, skip_oversampling:bool=False):
+  subsample = stratified_subsampling(full_data.loc[full_data.credit_risk.isin([1])], subsampling_features, subsampling_size) if(not skip_subsampling) else full_data
+  subsample = merge_two_subsets(subsample, full_data.loc[full_data.credit_risk.isin([0])]) if(not skip_subsampling) else full_data
+  subsample = smote_oversampling(X_vars=subsample.drop("credit_risk", axis=1), y_var=subsample.credit_risk) if(not skip_oversampling) else subsample
   return subsample
 
 def verify_sample_belongs_to_population(data:pd.DataFrame, subset: pd.DataFrame):
